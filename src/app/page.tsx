@@ -57,7 +57,7 @@ export default function Home() {
     };
 
     fetchObservations();
-  }, [searchParams]);
+  }, [searchParams, selectedObservation]);
 
   // Handle search form submission
   const handleSearch = (

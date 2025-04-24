@@ -48,6 +48,35 @@ export interface ObservationResponse {
   results: Observation[];
 }
 
+// Interface for raw API responses
+interface RawSpeciesSuggestion {
+  id: number;
+  name: string;
+  matched_term?: string;
+  preferred_common_name?: string;
+  rank?: string;
+  iconic_taxon_name?: string;
+}
+
+interface RawObservation {
+  id: number;
+  species_guess: string;
+  observed_on_string: string;
+  geojson?: {
+    coordinates: [number, number];
+  };
+  place_guess?: string;
+  user: {
+    login: string;
+    name?: string;
+  };
+  photos?: Array<{
+    url: string;
+  }>;
+  uri: string;
+  quality_grade: string;
+}
+
 // Function to get species suggestions for autocomplete
 export const getSpeciesSuggestions = async (
   query: string
@@ -65,7 +94,7 @@ export const getSpeciesSuggestions = async (
       },
     });
 
-    return response.data.results.map((result: any) => ({
+    return response.data.results.map((result: RawSpeciesSuggestion) => ({
       id: result.id,
       name: result.name,
       matched_term: result.matched_term,
@@ -108,7 +137,7 @@ export const searchObservations = async (
 
     // Transform the API response to match our interface
     const observations: Observation[] = response.data.results.map(
-      (obs: any) => ({
+      (obs: RawObservation) => ({
         id: obs.id,
         species_guess: obs.species_guess,
         observed_on: obs.observed_on_string,
@@ -122,7 +151,7 @@ export const searchObservations = async (
           name: obs.user.name || obs.user.login,
         },
         photos:
-          obs.photos?.map((photo: any) => ({
+          obs.photos?.map((photo) => ({
             url: photo.url.replace("square", "medium"),
           })) || [],
         uri: obs.uri,
